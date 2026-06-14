@@ -4,6 +4,7 @@ param vmName string
 param workspaceId string
 param managementSource string = '*'
 
+param sshPublicKey string
 param adminUsername string
 
 var nicName = 'nic-${vmName}'
@@ -68,9 +69,23 @@ resource vm 'Microsoft.Compute/virtualMachines@2025-11-01' = {
     osProfile: {
       computerName: vmName
       adminUsername: adminUsername
+      linuxConfiguration: {
+        disablePasswordAuthentication: true
+        ssh: {
+          publicKeys: [
+            {
+              path: '/home/${adminUsername}/.ssh/authorized_keys'
+              keyData: sshPublicKey
+            }
+          ]
+        }
+      }
     }
+    
     networkProfile: { networkInterfaces: [ { id: vmNic.id } ] }
+    
   }
+  
 }
 // SSH Entra ID login
 resource aadSSH 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = {

@@ -27,7 +27,7 @@ param prod object
 @description('identity settings')
 param identity object
 
-
+param sshPublicKey string
 
 // Create resource groups
 resource rgHub 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -111,6 +111,7 @@ module devCompute 'modules/compute/dev/dev-compute.bicep' = {
     vmName: '${prefix}-vm-dev'
     workspaceId: sharedServices.outputs.workspaceId
     adminUsername: identity.adminUsername
+    sshPublicKey: sshPublicKey
   }
   dependsOn: [ rgDev ]
 }
@@ -141,6 +142,7 @@ module testCompute 'modules/compute/test/test-compute.bicep' = {
     vmName: '${prefix}-vm-test'
     workspaceId: sharedServices.outputs.workspaceId
     adminUsername: identity.adminUsername
+    sshPublicKey: sshPublicKey
 
   }
   dependsOn: [ rgTest ]
@@ -172,6 +174,7 @@ module prodCompute 'modules/compute/prod/prod-compute.bicep' = {
     vmName: '${prefix}-vm-prod'
     workspaceId: sharedServices.outputs.workspaceId
     adminUsername: identity.adminUsername
+    sshPublicKey: sshPublicKey
 
   }
   dependsOn: [ rgProd ]
