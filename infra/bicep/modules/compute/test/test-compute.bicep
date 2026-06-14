@@ -4,6 +4,8 @@ param vmName string
 param workspaceId string
 param managementSource string = '*'
 
+param adminUsername string 
+
 var nicName = 'nic-${vmName}'
 var nsgName = 'nsg-${vmName}'
 
@@ -63,7 +65,10 @@ resource vm 'Microsoft.Compute/virtualMachines@2025-11-01' = {
         managedDisk: { storageAccountType: 'Standard_LRS' }
       }
     }
-
+    osProfile: {
+      computerName: vmName
+      adminUsername: adminUsername
+    }
     networkProfile: { networkInterfaces: [ { id: vmNic.id } ] }
   }
 }

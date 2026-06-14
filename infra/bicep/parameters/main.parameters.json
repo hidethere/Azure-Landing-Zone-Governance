@@ -60,6 +60,9 @@
         "subnetName": "snet-vm-prod",
         "subnetPrefix": "10.4.0.0/24"
       }
+    },
+    "identity": {
+      "adminUsername": "azureuser"
     }
 
 

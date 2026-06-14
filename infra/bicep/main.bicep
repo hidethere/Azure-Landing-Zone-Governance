@@ -24,6 +24,10 @@ param test object
 @description('Prod spoke settings')
 param prod object
 
+@description('identity settings')
+param identity object
+
+
 
 // Create resource groups
 resource rgHub 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -106,6 +110,7 @@ module devCompute 'modules/compute/dev/dev-compute.bicep' = {
     subnetId: devNetwork.outputs.subnetId
     vmName: '${prefix}-vm-dev'
     workspaceId: sharedServices.outputs.workspaceId
+    adminUsername: identity.adminUsername
   }
   dependsOn: [ rgDev ]
 }
@@ -135,6 +140,8 @@ module testCompute 'modules/compute/test/test-compute.bicep' = {
     subnetId: testNetwork.outputs.subnetId
     vmName: '${prefix}-vm-test'
     workspaceId: sharedServices.outputs.workspaceId
+    adminUsername: identity.adminUsername
+
   }
   dependsOn: [ rgTest ]
 }
@@ -164,6 +171,8 @@ module prodCompute 'modules/compute/prod/prod-compute.bicep' = {
     subnetId: prodNetwork.outputs.subnetId
     vmName: '${prefix}-vm-prod'
     workspaceId: sharedServices.outputs.workspaceId
+    adminUsername: identity.adminUsername
+
   }
   dependsOn: [ rgProd ]
 }
