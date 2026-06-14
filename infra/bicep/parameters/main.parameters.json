@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": { "value": "northeurope" },
+    "prefix": { "value": "azlz" },
+
+    "resourceGroups": {
+      "value": {
+        "hub": "azlz-rg-hub",
+        "shared": "azlz-rg-shared",
+        "dev": "azlz-rg-dev",
+        "test": "azlz-rg-test",
+        "prod": "azlz-rg-prod"
+      }
+    },
+
+    "hub": {
+      "value": {
+        "vnetName": "azlz-hub-vnet",
+        "addressPrefixes": "10.0.0.0/16",
+        "subnetBastionPrefix": "10.0.0.0/24",
+        "subnetFirewallPrefix": "10.0.1.0/26",
+        "bastionName": "azlz-bastion",
+        "firewallName": "azlz-firewall"
+      }
+    },
+
+    "shared": {
+      "value": {
+        "vnetName": "azlz-shared-vnet",
+        "addressPrefixes": "10.1.0.0/16",
+        "subnetPrivEndpPrefix": "10.1.0.0/24",
+        "keyVaultName": "azlz-kv"
+      }
+    },
+
+    "dev": {
+      "value": {
+        "vnetName": "azlz-dev-vnet",
+        "addressPrefixes": "10.2.0.0/16",
+        "subnetName": "snet-vm-dev",
+        "subnetPrefix": "10.2.0.0/24"
+      }
+    },
+
+    "test": {
+      "value": {
+        "vnetName": "azlz-test-vnet",
+        "addressPrefixes": "10.3.0.0/16",
+        "subnetName": "snet-vm-test",
+        "subnetPrefix": "10.3.0.0/24"
+      }
+    },
+
+    "prod": {
+      "value": {
+        "vnetName": "azlz-prod-vnet",
+        "addressPrefixes": "10.4.0.0/16",
+        "subnetName": "snet-vm-prod",
+        "subnetPrefix": "10.4.0.0/24"
+      }
+    }
+
+
+  }
+}
