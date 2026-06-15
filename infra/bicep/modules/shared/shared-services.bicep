@@ -14,6 +14,8 @@ param testVnetName string
 param rgDev string
 param rgTest string
 param rgProd string
+
+param sshPublicKey string
 // Shared VNet
 resource vnetShared 'Microsoft.Network/virtualNetworks@2025-07-01' = {
   name: vnetName
@@ -51,7 +53,6 @@ resource keyvault 'Microsoft.KeyVault/vaults@2026-02-01' = {
     }
   }
 }
-
 // Log Analytics workspace
 resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: '${keyVaultName}-law'

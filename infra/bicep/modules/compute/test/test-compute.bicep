@@ -110,7 +110,6 @@ resource aadSSH 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = {
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
   }
-
 }
 
 // Diagnostic settings
