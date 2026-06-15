@@ -93,7 +93,7 @@ resource vmLoginRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   properties: {
     roleDefinitionId: subscriptionResourceId(
       'Microsoft.Authorization/roleDefinitions',
-      'b0d1b7a9-0b4f-4d3f-9f3f-2b1a6d0c2b7f' // VM User Login
+      '1c0163c0-47e6-4577-8991-ea5c82e286e4' // VM adminstrator Login
     )
     principalId: vmAccessId
   }
