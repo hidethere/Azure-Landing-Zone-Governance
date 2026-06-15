@@ -63,7 +63,7 @@ resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
 }
 
 resource devVnet 'Microsoft.Network/virtualNetworks@2025-07-01' existing = {
-  scope: resourceGroup(subscription().subscriptionId, rgTest)
+  scope: resourceGroup(subscription().subscriptionId, rgDev)
   name: devVnetName
 }
 
