@@ -21,8 +21,8 @@ resource vnetSpoke 'Microsoft.Network/virtualNetworks@2025-07-01' = {
 }
 
 // Route Table
-resource rtDev 'Microsoft.Network/routeTables@2025-07-01' = {
-  name: 'rt-dev'
+resource rtTest 'Microsoft.Network/routeTables@2025-07-01' = {
+  name: 'rt-test'
   location: location
 
   properties: {
@@ -33,12 +33,13 @@ resource rtDev 'Microsoft.Network/routeTables@2025-07-01' = {
 // UDR
 resource defaultRoute 'Microsoft.Network/routeTables/routes@2025-07-01' = {
   name: 'default-to-firewall'
-  parent: rtDev
+  parent: rtTest
 
   properties: {
     addressPrefix: '0.0.0.0/0'
     nextHopType: 'VirtualAppliance'
     nextHopIpAddress: firewallPrivateIp
+    
   }
 }
 
@@ -48,6 +49,9 @@ resource subnetSpoke 'Microsoft.Network/virtualNetworks/subnets@2025-07-01' = {
   parent: vnetSpoke
   properties: {
     addressPrefix: subnetPrefix
+    routeTable: {
+      id: rtTest.id
+    }
   }
 }
 

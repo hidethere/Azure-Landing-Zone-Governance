@@ -5,9 +5,9 @@ param subnetBastionPrefix string
 param subnetFirewallPrefix string
 param bastionName string
 param firewallName string
-param devAddressPrefixes string
-param testAddressPrefixes string
-param prodAddressPrefixes string
+param devSubnetPrefix string
+param testSubnetPrefix string
+param prodSubnetPrefix string
 
 
 var pipBastionName = '${vnetName}-pip-bastion'
@@ -99,36 +99,54 @@ resource firewall 'Microsoft.Network/azureFirewalls@2025-07-01' = {
       }
     ]
     applicationRuleCollections: [
-      {
-        name: 'app-egress'
-        properties: {
-          priority: 100
-        action: {
-          type: 'Allow'
-        }
-        rules: [
-          {
-            name: 'allow-microsoft'
-            sourceAddresses: [
-              devAddressPrefixes
-              testAddressPrefixes
-              prodAddressPrefixes
-            ]
-            protocols: [
-              {
-                protocolType: 'Https'
-                port: 443
-              }
-            ]
-            targetFqdns: [
-              '*'
-            ]
-          }
-        ]
-        }
-        
+  {
+    name: 'app-egress'
+    properties: {
+      priority: 100
+      action: {
+        type: 'Allow'
       }
-    ]
+      rules: [
+        {
+          name: 'allow-linux-bootstrap-http'
+          sourceAddresses: [
+            devSubnetPrefix
+            testSubnetPrefix
+            prodSubnetPrefix
+          ]
+          protocols: [
+            {
+              protocolType: 'Http'
+              port: 80
+            }
+          ]
+          targetFqdns: [
+            'azure.archive.ubuntu.com'
+            'archive.ubuntu.com'
+            'security.ubuntu.com'
+          ]
+        }
+        {
+          name: 'allow-microsoft-https'
+          sourceAddresses: [
+            devSubnetPrefix
+            testSubnetPrefix
+            prodSubnetPrefix
+          ]
+          protocols: [
+            {
+              protocolType: 'Https'
+              port: 443
+            }
+          ]
+          targetFqdns: [
+            'packages.microsoft.com'
+          ]
+        }
+      ]
+    }
+  }
+]
   }
 }
 

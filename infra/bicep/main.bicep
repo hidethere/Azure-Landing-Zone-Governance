@@ -67,9 +67,9 @@ module hubNetwork 'modules/hub/hub-network.bicep' = {
     subnetFirewallPrefix: hub.subnetFirewallPrefix
     bastionName: hub.bastionName
     firewallName: hub.firewallName
-    devAddressPrefixes: dev.addressPrefixes
-    prodAddressPrefixes: prod.addressPrefixes
-    testAddressPrefixes: test.addressPrefixes
+    devSubnetPrefix: dev.subnetPrefix
+    prodSubnetPrefix: prod.subnetPrefix
+    testSubnetPrefix: test.subnetPrefix
   }
   dependsOn: [ rgHub ]
 }
