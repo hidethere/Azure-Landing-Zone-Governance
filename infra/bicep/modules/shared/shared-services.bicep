@@ -7,9 +7,9 @@ param keyVaultName string
 param hubVnetId string = ''
 param hubVnetName string = ''
 
-param devVnetName string
-param prodVnetName string
-param testVnetName string
+param devVnetId string
+param prodVnetId string
+param testVnetId string
 // Shared VNet
 resource vnetShared 'Microsoft.Network/virtualNetworks@2025-07-01' = {
   name: vnetName
@@ -59,15 +59,15 @@ resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
 }
 
 resource devVnet 'Microsoft.Network/virtualNetworks@2025-07-01' existing = {
-  name: devVnetName
+  name: devVnetId
 }
 
 resource prodVnet 'Microsoft.Network/virtualNetworks@2025-07-01' existing = {
-  name: prodVnetName
+  name: prodVnetId
 }
 
 resource testVnet 'Microsoft.Network/virtualNetworks@2025-07-01' existing = {
-  name: testVnetName
+  name: testVnetId
 }
 // Private DNS for keyvault private endpoint
 resource dnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
@@ -88,7 +88,7 @@ resource sharedDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLink
 }
 
 resource devDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${dnsZone.name}-${devVnetName}-link'
+  name: '${dnsZone.name}-${devVnet.name}-link'
   parent: dnsZone
   location: 'global'
   properties: {
@@ -100,7 +100,7 @@ resource devDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2
 }
 
 resource testDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${dnsZone.name}-${testVnetName}-link'
+  name: '${dnsZone.name}-${testVnet.name}-link'
   parent: dnsZone
   location: 'global'
   properties: {
@@ -112,7 +112,7 @@ resource testDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@
 }
 
 resource prodDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${dnsZone.name}-${prodVnetName}-link'
+  name: '${dnsZone.name}-${prodVnet.name}-link'
   parent: dnsZone
   location: 'global'
   properties: {

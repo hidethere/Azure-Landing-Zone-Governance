@@ -75,22 +75,7 @@ module hubNetwork 'modules/hub/hub-network.bicep' = {
   dependsOn: [ rgHub ]
 }
 
-// Shared services module in shared RG
-module sharedServices 'modules/shared/shared-services.bicep' = {
-  name: 'sharedServices'
-  scope: resourceGroup(resourceGroups.shared)
-  params: {
-    location: location
-    vnetName: shared.vnetName
-    addressPrefixes: shared.addressPrefixes
-    subnetPrivEndpAddressPrefix: shared.subnetPrivEndpPrefix
-    keyVaultName: shared.keyVaultName
-    devVnetName: dev.vnetName
-    testVnetName: test.vnetName
-    prodVnetName: prod.vnetName
-  }
-  dependsOn: [ rgShared, hubNetwork ]
-}
+
 
 // Dev network in dev RG
 module devNetwork 'modules/spokes/dev/dev-network.bicep' = {
@@ -106,7 +91,61 @@ module devNetwork 'modules/spokes/dev/dev-network.bicep' = {
     hubVnetName: hub.vnetName
     firewallPrivateIp: hubNetwork.outputs.firewallPrivateIp
   }
-  dependsOn: [ rgDev, sharedServices ]
+  dependsOn: [ rgDev ]
+}
+
+
+// Test network in test RG
+module testNetwork 'modules/spokes/test/test-network.bicep' = {
+  name: 'testNetwork'
+  scope: resourceGroup(resourceGroups.test)
+  params: {
+    location: location
+    vnetName: test.vnetName
+    addressPrefixes: test.addressPrefixes
+    subnetName: test.subnetName
+    subnetPrefix: test.subnetPrefix
+    hubVnetId: hubNetwork.outputs.vnetId
+    hubVnetName: hub.vnetName
+    firewallPrivateIp: hubNetwork.outputs.firewallPrivateIp
+  }
+  dependsOn: [ rgTest ]
+}
+
+
+// Prod network in prod RG
+module prodNetwork 'modules/spokes/prod/prod-network.bicep' = {
+  name: 'prodNetwork'
+  scope: resourceGroup(resourceGroups.prod)
+  params: {
+    location: location
+    vnetName: prod.vnetName
+    addressPrefixes: prod.addressPrefixes
+    subnetName: prod.subnetName
+    subnetPrefix: prod.subnetPrefix
+    hubVnetId: hubNetwork.outputs.vnetId
+    hubVnetName: hub.vnetName
+    firewallPrivateIp: hubNetwork.outputs.firewallPrivateIp
+  }
+  dependsOn: [ rgProd ]
+}
+
+
+// Shared services module in shared RG
+module sharedServices 'modules/shared/shared-services.bicep' = {
+  name: 'sharedServices'
+  scope: resourceGroup(resourceGroups.shared)
+  params: {
+    location: location
+    vnetName: shared.vnetName
+    addressPrefixes: shared.addressPrefixes
+    subnetPrivEndpAddressPrefix: shared.subnetPrivEndpPrefix
+    keyVaultName: shared.keyVaultName
+    devVnetId: devNetwork.outputs.vnetId
+    testVnetId: testNetwork.outputs.vnetId
+    prodVnetId: prodNetwork.outputs.vnetId
+  }
+  dependsOn: [ rgShared ]
 }
 
 // Dev compute in dev RG
@@ -124,22 +163,7 @@ module devCompute 'modules/compute/dev/dev-compute.bicep' = {
   dependsOn: [ rgDev ]
 }
 
-// Test network in test RG
-module testNetwork 'modules/spokes/test/test-network.bicep' = {
-  name: 'testNetwork'
-  scope: resourceGroup(resourceGroups.test)
-  params: {
-    location: location
-    vnetName: test.vnetName
-    addressPrefixes: test.addressPrefixes
-    subnetName: test.subnetName
-    subnetPrefix: test.subnetPrefix
-    hubVnetId: hubNetwork.outputs.vnetId
-    hubVnetName: hub.vnetName
-    firewallPrivateIp: hubNetwork.outputs.firewallPrivateIp
-  }
-  dependsOn: [ rgTest, sharedServices ]
-}
+
 
 // Test compute in test RG
 module testCompute 'modules/compute/test/test-compute.bicep' = {
@@ -157,22 +181,6 @@ module testCompute 'modules/compute/test/test-compute.bicep' = {
   dependsOn: [ rgTest ]
 }
 
-// Prod network in prod RG
-module prodNetwork 'modules/spokes/prod/prod-network.bicep' = {
-  name: 'prodNetwork'
-  scope: resourceGroup(resourceGroups.prod)
-  params: {
-    location: location
-    vnetName: prod.vnetName
-    addressPrefixes: prod.addressPrefixes
-    subnetName: prod.subnetName
-    subnetPrefix: prod.subnetPrefix
-    hubVnetId: hubNetwork.outputs.vnetId
-    hubVnetName: hub.vnetName
-    firewallPrivateIp: hubNetwork.outputs.firewallPrivateIp
-  }
-  dependsOn: [ rgProd, sharedServices ]
-}
 
 // Prod compute in prod RG
 module prodCompute 'modules/compute/prod/prod-compute.bicep' = {
