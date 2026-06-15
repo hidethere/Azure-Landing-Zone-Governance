@@ -1,45 +1,94 @@
 stages:
-- stage: GenerateSSH
+
+# 1. BOOTSTRAP SSH (RUN ONCE)
+
+- stage: BootstrapSSH
+  displayName: "Bootstrap SSH Key (Key Vault)"
   jobs:
   - job: SSH
+    displayName: "Generate or reuse SSH key"
     steps:
-    - task: PowerShell@2
-      inputs:
-        targetType: inline
-        script: |
-          $sshDir = "$(Pipeline.Workspace)/ssh"
-          New-Item -ItemType Directory -Force -Path $sshDir
 
-          ssh-keygen -t rsa -b 4096 -f "$sshDir/id_rsa" -N ""
-
-          $publicKey  = Get-Content "$sshDir/id_rsa.pub" -Raw
-          $privateKey = Get-Content "$sshDir/id_rsa" -Raw
-
-          az keyvault secret set `
-            --vault-name "$(keyVaultName)" `
-            --name "ssh-private-key" `
-            --value "$privateKey"
-          
-          az keyvault secret set `
-            --vault-name "$(keyVaultName)" `
-            --name "ssh-public-key" `
-            --value "$publicKey"
-
-          Write-Host "##vso[task.setvariable variable=sshPublicKey]$publicKey"
-
-- stage: DeployInfra
-  dependsOn: GenerateSSH
-  jobs:
-  - job: Deploy
-    steps:
     - task: AzureCLI@2
+      displayName: "Ensure SSH key exists in Key Vault"
       inputs:
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
-          az deployment sub create `
-            --location northeurope `
-            --template-file main.bicep `
-            --parameters @main.parameters.json
-            --parameters sshPublicKey="$(sshPublicKey)"
-         
+          set -e
+
+          echo "Checking if SSH key already exists..."
+
+          ssh_exists=$(az keyvault secret show \
+            --vault-name "$(keyVaultName)" \
+            --name "ssh-key-exists" \
+            --query value -o tsv 2>/dev/null || echo "")
+
+          if [ -z "$ssh_exists" ]; then
+            echo "No SSH key found. Generating new key..."
+
+            ssh-keygen -t rsa -b 4096 -f /tmp/id_rsa -N ""
+
+            public=$(cat /tmp/id_rsa.pub)
+            private=$(cat /tmp/id_rsa)
+
+            echo "Storing SSH public key..."
+            az keyvault secret set \
+              --vault-name "$(keyVaultName)" \
+              --name "ssh-public-key" \
+              --value "$public" > /dev/null
+
+            echo "Storing SSH private key..."
+            az keyvault secret set \
+              --vault-name "$(keyVaultName)" \
+              --name "ssh-private-key" \
+              --value "$private" > /dev/null
+
+            echo "Setting existence flag..."
+            az keyvault secret set \
+              --vault-name "$(keyVaultName)" \
+              --name "ssh-key-exists" \
+              --value "true" > /dev/null
+
+            echo "SSH key successfully created and stored in Key Vault."
+          else
+            echo "SSH key already exists. Skipping generation."
+          fi
+
+
+# INFRA DEPLOYMENT
+- stage: DeployInfra
+  displayName: "Deploy Landing Zone Infrastructure"
+  dependsOn: BootstrapSSH
+
+  jobs:
+  - job: Deploy
+    steps:
+
+    - task: AzureCLI@2
+      displayName: "Fetch SSH key and deploy Bicep"
+      inputs:
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          set -e
+
+          echo "Retrieving SSH public key from Key Vault..."
+
+          sshPublicKey=$(az keyvault secret show \
+            --vault-name "$(keyVaultName)" \
+            --name "ssh-public-key" \
+            --query value -o tsv)
+
+          if [ -z "$sshPublicKey" ]; then
+            echo "ERROR: SSH public key not found in Key Vault"
+            exit 1
+          fi
+
+          echo "Deploying infrastructure..."
+
+          az deployment sub create \
+            --location westeurope \
+            --template-file main.bicep \
+            --parameters @main.parameters.json \
+            --parameters sshPublicKey="$sshPublicKey"
