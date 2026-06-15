@@ -121,9 +121,9 @@ resource firewall 'Microsoft.Network/azureFirewalls@2025-07-01' = {
               }
             ]
             targetFqdns: [
-              'login.microsoftonline.com'
-              '*.microsoft.com'
-              '*.windows.net'
+              'packages.microsoft.com'
+              'archive.ubuntu.com'
+              'security.ubuntu.com'
             ]
           }
         ]
