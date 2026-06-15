@@ -7,9 +7,13 @@ param keyVaultName string
 param hubVnetId string = ''
 param hubVnetName string = ''
 
-param devVnetId string
-param prodVnetId string
-param testVnetId string
+param devVnetName string
+param prodVnetName string
+param testVnetName string
+
+param rgDev string
+param rgTest string
+param rgProd string
 // Shared VNet
 resource vnetShared 'Microsoft.Network/virtualNetworks@2025-07-01' = {
   name: vnetName
@@ -59,15 +63,18 @@ resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
 }
 
 resource devVnet 'Microsoft.Network/virtualNetworks@2025-07-01' existing = {
-  name: devVnetId
+  scope: resourceGroup(subscription().subscriptionId, rgTest)
+  name: devVnetName
 }
 
 resource prodVnet 'Microsoft.Network/virtualNetworks@2025-07-01' existing = {
-  name: prodVnetId
+  scope: resourceGroup(subscription().subscriptionId, rgProd)
+  name: prodVnetName
 }
 
 resource testVnet 'Microsoft.Network/virtualNetworks@2025-07-01' existing = {
-  name: testVnetId
+  scope: resourceGroup(subscription().subscriptionId, rgTest)
+  name: testVnetName
 }
 // Private DNS for keyvault private endpoint
 resource dnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
@@ -88,7 +95,7 @@ resource sharedDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLink
 }
 
 resource devDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${dnsZone.name}-${devVnet.name}-link'
+  name: '${dnsZone.name}-${devVnetName}-link'
   parent: dnsZone
   location: 'global'
   properties: {
@@ -100,7 +107,7 @@ resource devDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2
 }
 
 resource testDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${dnsZone.name}-${testVnet.name}-link'
+  name: '${dnsZone.name}-${testVnetName}-link'
   parent: dnsZone
   location: 'global'
   properties: {
@@ -112,7 +119,7 @@ resource testDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@
 }
 
 resource prodDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${dnsZone.name}-${prodVnet.name}-link'
+  name: '${dnsZone.name}-${prodVnetName}-link'
   parent: dnsZone
   location: 'global'
   properties: {

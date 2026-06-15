@@ -141,9 +141,12 @@ module sharedServices 'modules/shared/shared-services.bicep' = {
     addressPrefixes: shared.addressPrefixes
     subnetPrivEndpAddressPrefix: shared.subnetPrivEndpPrefix
     keyVaultName: shared.keyVaultName
-    devVnetId: devNetwork.outputs.vnetId
-    testVnetId: testNetwork.outputs.vnetId
-    prodVnetId: prodNetwork.outputs.vnetId
+    devVnetName: dev.vnetName
+    testVnetName: test.vnetName
+    prodVnetName: prod.vnetName
+    rgDev: resourceGroups.dev
+    rgTest: resourceGroups.test
+    rgProd: resourceGroups.prod
   }
   dependsOn: [ rgShared ]
 }
