@@ -4,11 +4,13 @@ param vmName string
 param workspaceId string
 param managementSource string = '*'
 
-param sshPublicKey string
+param vmAccessId string
 param adminUsername string
 
 var nicName = 'nic-${vmName}'
 var nsgName = 'nsg-${vmName}'
+
+
 
 resource vmNsg 'Microsoft.Network/networkSecurityGroups@2025-07-01' = {
   name: nsgName
@@ -71,14 +73,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2025-11-01' = {
       adminUsername: adminUsername
       linuxConfiguration: {
         disablePasswordAuthentication: true
-        ssh: {
-          publicKeys: [
-            {
-              path: '/home/${adminUsername}/.ssh/authorized_keys'
-              keyData: sshPublicKey
-            }
-          ]
-        }
+        
       }
     }
     
@@ -86,6 +81,18 @@ resource vm 'Microsoft.Compute/virtualMachines@2025-11-01' = {
     
   }
   
+}
+
+resource vmLoginRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(vm.id, vmAccessId, 'vm-login')
+  scope: vm
+  properties: {
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'b0d1b7a9-0b4f-4d3f-9f3f-2b1a6d0c2b7f' // VM User Login
+    )
+    principalId: vmAccessId
+  }
 }
 // SSH Entra ID login
 resource aadSSH 'Microsoft.Compute/virtualMachines/extensions@2024-03-01' = {

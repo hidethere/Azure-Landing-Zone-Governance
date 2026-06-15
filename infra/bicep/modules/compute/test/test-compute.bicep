@@ -4,7 +4,7 @@ param vmName string
 param workspaceId string
 param managementSource string = '*'
 
-param sshPublicKey string
+param vmAccessId string
 param adminUsername string 
 
 var nicName = 'nic-${vmName}'
@@ -71,17 +71,21 @@ resource vm 'Microsoft.Compute/virtualMachines@2025-11-01' = {
       adminUsername: adminUsername
        linuxConfiguration: {
         disablePasswordAuthentication: true
-        ssh: {
-          publicKeys: [
-            {
-              path: '/home/${adminUsername}/.ssh/authorized_keys'
-              keyData: sshPublicKey
-            }
-          ]
-        }
       }
     }
     networkProfile: { networkInterfaces: [ { id: vmNic.id } ] }
+  }
+}
+
+resource vmLoginRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(vm.id, vmAccessId, 'vm-login')
+  scope: vm
+  properties: {
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'b0d1b7a9-0b4f-4d3f-9f3f-2b1a6d0c2b7f' // VM User Login
+    )
+    principalId: vmAccessId
   }
 }
 

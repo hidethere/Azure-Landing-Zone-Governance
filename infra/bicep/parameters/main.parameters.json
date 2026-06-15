@@ -65,6 +65,11 @@
       "value": {
         "adminUsername": "azureuser"
       }
+    },
+    "gov": {
+      "value": {
+        "vmAccessId": "c4f713e9-3e4f-4c6f-9460-b63d248e4975"
+      }
     }
 
 
