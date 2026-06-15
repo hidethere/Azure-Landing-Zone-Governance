@@ -7,6 +7,9 @@ param keyVaultName string
 param hubVnetId string = ''
 param hubVnetName string = ''
 
+param devVnetName string
+param prodVnetName string
+param testVnetName string
 // Shared VNet
 resource vnetShared 'Microsoft.Network/virtualNetworks@2025-07-01' = {
   name: vnetName
@@ -55,19 +58,66 @@ resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   }
 }
 
+resource devVnet 'Microsoft.Network/virtualNetworks@2025-07-01' existing = {
+  name: devVnetName
+}
+
+resource prodVnet 'Microsoft.Network/virtualNetworks@2025-07-01' existing = {
+  name: prodVnetName
+}
+
+resource testVnet 'Microsoft.Network/virtualNetworks@2025-07-01' existing = {
+  name: testVnetName
+}
 // Private DNS for keyvault private endpoint
 resource dnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: 'privatelink.vaultcore.azure.net'
   location: 'global'
 }
 
-resource dnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${dnsZone.name}-link'
+resource sharedDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  name: '${dnsZone.name}-${vnetName}-link'
   parent: dnsZone
   location: 'global'
   properties: {
     virtualNetwork: {
       id: vnetShared.id
+    }
+    registrationEnabled: false
+  }
+}
+
+resource devDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  name: '${dnsZone.name}-${devVnetName}-link'
+  parent: dnsZone
+  location: 'global'
+  properties: {
+    virtualNetwork: {
+      id: devVnet.id
+    }
+    registrationEnabled: false
+  }
+}
+
+resource testDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  name: '${dnsZone.name}-${testVnetName}-link'
+  parent: dnsZone
+  location: 'global'
+  properties: {
+    virtualNetwork: {
+      id: testVnet.id
+    }
+    registrationEnabled: false
+  }
+}
+
+resource prodDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  name: '${dnsZone.name}-${prodVnetName}-link'
+  parent: dnsZone
+  location: 'global'
+  properties: {
+    virtualNetwork: {
+      id: prodVnet.id
     }
     registrationEnabled: false
   }
