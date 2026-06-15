@@ -64,6 +64,7 @@
     "identity": {
       "value": {
         "adminUsername": "azureuser"
+        
       }
     },
     "gov": {

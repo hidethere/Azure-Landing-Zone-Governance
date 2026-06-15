@@ -4,12 +4,12 @@ param vmName string
 param workspaceId string
 param managementSource string = '*'
 
+param sshPublicKey string
 param vmAccessId string
 param adminUsername string
 
 var nicName = 'nic-${vmName}'
 var nsgName = 'nsg-${vmName}'
-
 
 
 resource vmNsg 'Microsoft.Network/networkSecurityGroups@2025-07-01' = {
@@ -73,8 +73,16 @@ resource vm 'Microsoft.Compute/virtualMachines@2025-11-01' = {
       adminUsername: adminUsername
       linuxConfiguration: {
         disablePasswordAuthentication: true
-        
+         ssh: {
+          publicKeys: [
+            {
+              path: '/home/${adminUsername}/.ssh/authorized_keys'
+              keyData: sshPublicKey
+            }
+          ]
+        }
       }
+      
     }
     
     networkProfile: { networkInterfaces: [ { id: vmNic.id } ] }

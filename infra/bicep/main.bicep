@@ -29,6 +29,8 @@ param identity object
 @description('governance settings')
 param gov object
 
+param sshPublicKey string
+
 
 // Create resource groups
 resource rgHub 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -162,6 +164,7 @@ module devCompute 'modules/compute/dev/dev-compute.bicep' = {
     workspaceId: sharedServices.outputs.workspaceId
     adminUsername: identity.adminUsername
     vmAccessId: gov.vmAccessId
+    sshPublicKey: sshPublicKey
   }
   dependsOn: [ rgDev ]
 }
@@ -179,7 +182,7 @@ module testCompute 'modules/compute/test/test-compute.bicep' = {
     workspaceId: sharedServices.outputs.workspaceId
     adminUsername: identity.adminUsername
     vmAccessId: gov.vmAccessId
-
+    sshPublicKey: sshPublicKey
   }
   dependsOn: [ rgTest ]
 }
@@ -196,6 +199,7 @@ module prodCompute 'modules/compute/prod/prod-compute.bicep' = {
     workspaceId: sharedServices.outputs.workspaceId
     adminUsername: identity.adminUsername
     vmAccessId: gov.vmAccessId
+    sshPublicKey: sshPublicKey
 
   }
   dependsOn: [ rgProd ]

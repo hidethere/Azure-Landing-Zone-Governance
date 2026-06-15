@@ -4,6 +4,7 @@ param vmName string
 param workspaceId string
 param managementSource string = '*'
 
+param sshPublicKey string
 param vmAccessId string
 param adminUsername string
 
@@ -71,7 +72,14 @@ resource vm 'Microsoft.Compute/virtualMachines@2025-11-01' = {
       adminUsername: adminUsername
        linuxConfiguration: {
         disablePasswordAuthentication: true
-        
+         ssh: {
+          publicKeys: [
+            {
+              path: '/home/${adminUsername}/.ssh/authorized_keys'
+              keyData: sshPublicKey
+            }
+          ]
+        }
       }
     }
 
