@@ -5,11 +5,16 @@ param subnetBastionPrefix string
 param subnetFirewallPrefix string
 param bastionName string
 param firewallName string
+param devAddressPrefixes string
+param testAddressPrefixes string
+param prodAddressPrefixes string
+
 
 var pipBastionName = '${vnetName}-pip-bastion'
 var pipFirewallName = '${vnetName}-pip-firewall'
 var bastionIpConfigName = 'bastion-config'
 var firewallIpConfigName = 'fw-ipconfig'
+
 
 // Hub VNet
 resource vnetHub 'Microsoft.Network/virtualNetworks@2025-07-01' = {
@@ -93,8 +98,43 @@ resource firewall 'Microsoft.Network/azureFirewalls@2025-07-01' = {
         }
       }
     ]
+    applicationRuleCollections: [
+      {
+        name: 'app-egress'
+        properties: {
+          priority: 100
+        action: {
+          type: 'Allow'
+        }
+        rules: [
+          {
+            name: 'allow-microsoft'
+            sourceAddresses: [
+              devAddressPrefixes
+              testAddressPrefixes
+              prodAddressPrefixes
+            ]
+            protocols: [
+              {
+                protocolType: 'Https'
+                port: 443
+              }
+            ]
+            targetFqdns: [
+              'login.microsoftonline.com'
+              '*.microsoft.com'
+              '*.windows.net'
+            ]
+          }
+        ]
+        }
+        
+      }
+    ]
   }
 }
+
+
 
 output vnetId string = vnetHub.id
 output subnetBastionId string = subnetBastion.id
@@ -104,3 +144,4 @@ output pipFirewallId string = pipFirewall.id
 output bastionId string = bastion.id
 output firewallId string = firewall.id
 output vnetName string = vnetName
+output firewallPrivateIp string = firewall.properties.ipConfigurations[0].properties.privateIPAddress

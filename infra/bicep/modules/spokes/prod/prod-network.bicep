@@ -6,6 +6,9 @@ param subnetPrefix string
 param hubVnetId string = ''
 param hubVnetName string = ''
 
+param firewallPrivateIp string
+
+
 // Spoke Prod Vnet
 resource vnetSpoke 'Microsoft.Network/virtualNetworks@2025-07-01' = {
   name: vnetName
@@ -14,6 +17,28 @@ resource vnetSpoke 'Microsoft.Network/virtualNetworks@2025-07-01' = {
     addressSpace: {
       addressPrefixes: [ addressPrefixes ]
     }
+  }
+}
+
+// Route Table
+resource rtDev 'Microsoft.Network/routeTables@2025-07-01' = {
+  name: 'rt-dev'
+  location: location
+
+  properties: {
+    disableBgpRoutePropagation: false
+  }
+}
+
+// UDR
+resource defaultRoute 'Microsoft.Network/routeTables/routes@2025-07-01' = {
+  name: 'default-to-firewall'
+  parent: rtDev
+
+  properties: {
+    addressPrefix: '0.0.0.0/0'
+    nextHopType: 'VirtualAppliance'
+    nextHopIpAddress: firewallPrivateIp
   }
 }
 

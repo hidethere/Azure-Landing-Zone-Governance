@@ -67,6 +67,9 @@ module hubNetwork 'modules/hub/hub-network.bicep' = {
     subnetFirewallPrefix: hub.subnetFirewallPrefix
     bastionName: hub.bastionName
     firewallName: hub.firewallName
+    devAddressPrefixes: dev.addressPrefixes
+    prodAddressPrefixes: prod.addressPrefixes
+    testAddressPrefixes: test.addressPrefixes
   }
   dependsOn: [ rgHub ]
 }
@@ -97,6 +100,7 @@ module devNetwork 'modules/spokes/dev/dev-network.bicep' = {
     subnetPrefix: dev.subnetPrefix
     hubVnetId: hubNetwork.outputs.vnetId
     hubVnetName: hub.vnetName
+    firewallPrivateIp: hubNetwork.outputs.firewallPrivateIp
   }
   dependsOn: [ rgDev, sharedServices ]
 }
@@ -128,6 +132,7 @@ module testNetwork 'modules/spokes/test/test-network.bicep' = {
     subnetPrefix: test.subnetPrefix
     hubVnetId: hubNetwork.outputs.vnetId
     hubVnetName: hub.vnetName
+    firewallPrivateIp: hubNetwork.outputs.firewallPrivateIp
   }
   dependsOn: [ rgTest, sharedServices ]
 }
@@ -160,6 +165,7 @@ module prodNetwork 'modules/spokes/prod/prod-network.bicep' = {
     subnetPrefix: prod.subnetPrefix
     hubVnetId: hubNetwork.outputs.vnetId
     hubVnetName: hub.vnetName
+    firewallPrivateIp: hubNetwork.outputs.firewallPrivateIp
   }
   dependsOn: [ rgProd, sharedServices ]
 }
