@@ -149,7 +149,6 @@ module sharedServices 'modules/shared/shared-services.bicep' = {
     rgDev: resourceGroups.dev
     rgTest: resourceGroups.test
     rgProd: resourceGroups.prod
-    sshPublicKey: sshPublicKey
   }
   dependsOn: [ rgShared ]
 }

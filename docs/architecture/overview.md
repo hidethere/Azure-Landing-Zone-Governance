@@ -27,8 +27,6 @@ Build a secure enterprise Azure foundation with governance, networking, and comp
 
 - Log Analytics Workspace
 - Diagnostic logs for all resources
-- Alerting for security events
-
 ## Automation Tools
 
 - Terraform + Bicep (infrastructure)

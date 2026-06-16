@@ -10,7 +10,6 @@ This project implements an enterprise-grade Azure Landing Zone using a Hub-and-S
 - Secure workload isolation
 - Policy-driven governance
 - Full observability
-- Scalable multi-subscription design
 
 ---
 

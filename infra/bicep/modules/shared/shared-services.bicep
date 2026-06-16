@@ -15,7 +15,6 @@ param rgDev string
 param rgTest string
 param rgProd string
 
-param sshPublicKey string
 // Shared VNet
 resource vnetShared 'Microsoft.Network/virtualNetworks@2025-07-01' = {
   name: vnetName
