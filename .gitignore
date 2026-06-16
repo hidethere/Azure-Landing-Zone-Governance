@@ -1,7 +1,6 @@
 # Session Analysis Reports (Local Use Only)
-INFRASTRUCTURE_REPORT.md
-IMPROVEMENTS_FOR_HIRING.md
-INFRASTRUCTURE_REVIEW.md
+# Ignore markdown files in the repo root
+/*.md
 
 # Terraform
 .terraform/
